@@ -13,6 +13,8 @@ To get started quickly:
 
 We're using [rootless podman](https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md) to run this container, you'll end up with files not owned by you in the `data/` directory. The best way to clean them up is with `make dbclean`.
 
+The scripts in the `init` directory are run in order when the container is created. The first one creates the database and user. More scripts can be added.
+
 # Troubleshooting
 
 ## Firewall on Redhat/others running with a more strict firewalld configuration

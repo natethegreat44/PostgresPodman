@@ -1,9 +1,10 @@
 # Introduction
 
-This is a simple, quick way to get a postgres database up and running in a container.
+This is a simple, quick way to get a [PostgreSQL](https://postgresql.org) database up and running in a container.
 
 To get started quickly:
 
+1. ensure you have `make` installed on your system
 1. copy `credentials.mk.template` to `credentials.mk` and then customize to your liking
 1. next, just run `make dbstart` to fire things up. In a few seconds, you should have a live Postgres database
 1. when you're all done, `make dbclean` can be used to clean things up

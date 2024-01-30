@@ -3,6 +3,7 @@ MAKEFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 MAKEFILE_DIR := $(dir $(MAKEFILE_PATH))
 
 CONTAINER_IMAGE := docker.io/postgres:16.1-alpine 
+#CONTAINER_IMAGE := docker.io/ankane/pgvector
 CONTAINER_NAME := postgres-my-db
 CONTAINER_NETWORK := postgres-my-db
 

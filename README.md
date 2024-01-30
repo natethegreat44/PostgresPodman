@@ -11,9 +11,9 @@ To get started quickly:
 
 # Notes
 
-We're using [rootless podman](https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md) to run this container, you'll end up with files not owned by you in the `data/` directory. The best way to clean them up is with `make dbclean`.
-
-The scripts in the `init` directory are run in order when the container is created. The first one creates the database and user. More scripts can be added.
+1. We're using [rootless podman](https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md) to run this container, you'll end up with files not owned by you in the `data/` directory. The best way to clean them up is with `make dbclean`.
+1. The scripts in the `init` directory are run in order when the container is created. The first one creates the database and user. More scripts can be added.
+1. [PGVector](https://github.com/pgvector/pgvector) is also supported! Just change the `CONTAINER_IMAGE` variable to `docker.io/ankane/pgvector`. 
 
 # Troubleshooting
 

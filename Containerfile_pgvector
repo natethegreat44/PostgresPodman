@@ -1,0 +1,6 @@
+FROM docker.io/ankane/pgvector
+
+# Create the shared data directory & volume inside the container. Like the pgdata directory,
+# this directory will change ownership once the container runs.
+RUN mkdir -p "/shared" && chown -R postgres:postgres "/shared" && chmod 1777 "/shared"
+VOLUME /shared

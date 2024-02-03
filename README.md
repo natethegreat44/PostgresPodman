@@ -4,16 +4,16 @@ This is a simple, quick way to get a [PostgreSQL](https://postgresql.org) databa
 
 To get started quickly:
 
-1. ensure you have `make` installed on your system
-1. copy `credentials.mk.template` to `credentials.mk` and then customize to your liking
-1. next, just run `make dbstart` to fire things up. In a few seconds, you should have a live Postgres database
-1. when you're all done, `make dbclean` can be used to clean things up
+1. copy `credentials.template` to `credentials` and then customize to your liking.
+1. next, just run `./cpg run` to fire things up. In a few seconds, you should have a live Postgres database. Use `./cpg runbg` if you want the database running in the background.
+1. when you're all done, `./cpg clean` can be used to clean things up
 
 # Notes
 
-1. We're using [rootless podman](https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md) to run this container, you'll end up with files not owned by you in the `data/` directory. The best way to clean them up is with `make dbclean`.
-1. The scripts in the `init` directory are run in order when the container is created. The first one creates the database and user. More scripts can be added.
-1. [PGVector](https://github.com/pgvector/pgvector) is also supported! Just change the `CONTAINER_IMAGE` variable to `docker.io/ankane/pgvector`. 
+1. We're using [rootless podman](https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md) to run this container, you'll end up with files not owned by you in the `data/` and `shared/` directory. The best way to clean them up is with `./cpg clean`.
+1. If you need to share files between your local machine and the container, copy them into the `shared/` directory. Note that `shared/` is currently considered as transient and WILL BE DELETED if you run `./cpg clean`.
+1. The scripts in the `init` directory are run in order when the container is created. The first one creates the database and user. More scripts can be added as needed.
+1. [PGVector](https://github.com/pgvector/pgvector) is also supported! Just set the `DBTYPE` environment variable to `pgvector` before running. For example, `DBTYPE=pgvector ./cpg run` 
 
 # Troubleshooting
 

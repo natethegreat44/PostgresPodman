@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+
+DBTYPE=${DBTYPE:-postgresql}
+CONTAINER_TAG=${CONTAINER_TAG:-localhost/postgresql}
+CONTAINER_FILE=Containerfile_${DBTYPE}
+
+CONTAINER_NAME=cpg
+CONTAINER_NETWORK=cpg
+POSTGRES_DATA_DIR=$(pwd)/data
+POSTGRES_INIT_DIR=$(pwd)/init
+POSTGRES_SHARED_DIR=$(pwd)/shared
+PGDATA=/var/lib/postgresql/data/pgdata
+LOCAL_PORT=5432
+
+. $(pwd)/credentials
+
+help() {
+    echo "TBD. See README.md for now."
+}
+
+clean() {
+    echo "****************************************************"
+	echo "* WARNING!                                         *"
+	echo "*                                                  *"
+	echo "* THIS WILL DELETE ALL YOUR POSTGRES DATA!         *"
+	echo "****************************************************"
+    read -p "Continue? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
+
+	podman unshare rm -r ${POSTGRES_DATA_DIR}
+	podman unshare rm -r ${POSTGRES_SHARED_DIR}
+	podman network rm ${CONTAINER_NETWORK}
+}
+
+prepare() {
+    mkdir -p ${POSTGRES_DATA_DIR}
+    mkdir -p ${POSTGRES_SHARED_DIR}
+    podman network create ${CONTAINER_NETWORK} --driver bridge
+    build_image
+}
+
+dbrun() {
+    RUNMODE=$1
+    podman run ${RUNMODE} \
+		--name ${CONTAINER_NAME} \
+		--rm \
+		--network ${CONTAINER_NETWORK} \
+		-e POSTGRES_USER=${POSTGRES_USER} \
+		-e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
+		-e PGDATA=${PGDATA} \
+		-e APP_DB_USER=${APP_DB_USER} \
+		-e APP_DB_PASS=${APP_DB_PASS} \
+		-e APP_DB_NAME=${APP_DB_NAME} \
+		-v ${POSTGRES_DATA_DIR}:${PGDATA}:Z \
+		-v ${POSTGRES_INIT_DIR}:/docker-entrypoint-initdb.d:Z \
+		-v ${POSTGRES_SHARED_DIR}:/shared:Z \
+		-p ${LOCAL_PORT}:5432 \
+		${CONTAINER_TAG}
+}
+
+dbsh() {
+    podman run -it --rm \
+		--network ${CONTAINER_NETWORK} \
+		${CONTAINER_TAG} /bin/bash
+}
+
+dbclient() {
+    DBUSER=$1
+    DBPASS=$2
+    DBNAME=$3
+
+    podman run -it --rm \
+		--network ${CONTAINER_NETWORK} \
+		-e PGPASSWORD=${DBPASS} \
+		${CONTAINER_TAG} psql -h ${CONTAINER_NAME} -U ${DBUSER} -d ${DBNAME}
+}
+
+build_image() {
+    podman build -f ${CONTAINER_FILE} -t ${CONTAINER_TAG} .
+}
+
+case $1 in
+    help)
+        help
+        ;;
+
+    clean)
+        clean
+        ;;
+
+    run)
+        prepare
+        dbrun -it
+        ;;
+
+    runbg)
+        prepare
+        dbrun -d
+        ;;
+
+    stop)
+        podman stop ${CONTAINER_NAME}
+        ;;
+
+    dbclient)
+        dbclient ${APP_DB_USER} ${APP_DB_PASS} ${APP_DB_NAME}
+        ;;
+    
+    dbclient_root)
+        dbclient ${POSTGRES_USER} ${POSTGRES_PASSWORD} postgres
+        ;;
+
+    dbsh)
+        dbsh
+        ;;
+
+    *)
+        echo "Unknown argument"
+        help
+        ;;
+
+esac

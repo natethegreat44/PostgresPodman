@@ -21,7 +21,7 @@ To get started quickly:
 
 If you're trying to connect to the database from another machine and having trouble, it could be
 that a firewall is blocking you. Redhat seems to keep things fairly locked down (a good thing in
-my opinion), whereas [Fedora has things pretty open](https://src.fedoraproject.org/rpms/firewalld/blob/rawhide/f/FedoraWorkstation.xml), and debian doesn't use a firewall at all (!?).
+my opinion), whereas [Fedora has things pretty open](https://src.fedoraproject.org/rpms/firewalld/blob/rawhide/f/FedoraWorkstation.xml), and default debian [doesn't seem to use a firewall at all](https://www.debian.org/doc/manuals/securing-debian-manual/firewall-setup.en.html) (yikes!).
 
 To see if the firewall is blocking you, running `firewall-cmd --list-all` will show the rules. On
 a clean, minimal installation of [Alma Linux 9.3](https://almalinux.org), for example:

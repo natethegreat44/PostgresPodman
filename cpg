@@ -19,12 +19,12 @@ help() {
 }
 
 clean() {
-    echo "****************************************************"
+	echo "****************************************************"
 	echo "* WARNING!                                         *"
 	echo "*                                                  *"
 	echo "* THIS WILL DELETE ALL YOUR POSTGRES DATA!         *"
 	echo "****************************************************"
-    read -p "Continue? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
+	read -p "Continue? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
 
 	podman unshare rm -r ${POSTGRES_DATA_DIR}
 	podman unshare rm -r ${POSTGRES_SHARED_DIR}

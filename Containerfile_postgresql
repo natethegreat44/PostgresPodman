@@ -1,4 +1,4 @@
-FROM docker.io/postgres:16.1-alpine
+FROM docker.io/postgres:16.2-alpine
 
 # Create the shared data directory & volume inside the container. Like the pgdata directory,
 # this directory will change ownership once the container runs.

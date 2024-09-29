@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+
+DBTYPE=${DBTYPE:-mssql}
+CONTAINER_TAG=${CONTAINER_TAG:-localhost/mssql}
+CONTAINER_FILE=Containerfile_${DBTYPE}
+
+CONTAINER_NAME=cmssql
+CONTAINER_NETWORK=cmssql
+LOCAL_PORT=1433
+
+. $(pwd)/credentials_mssql
+
+help() {
+    echo "TBD. See README.md for now."
+}
+
+clean() {
+    echo "****************************************************"
+    echo "* WARNING!                                         *"
+    echo "*                                                  *"
+    echo "* THIS WILL DELETE ALL YOUR SQL SERVER DATA!         *"
+    echo "****************************************************"
+    read -p "Continue? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
+
+    #podman unshare rm -r ${MSSQL_DATA_DIR}
+    #podman unshare rm -r ${MSSQL_SHARED_DIR}
+    podman network rm ${CONTAINER_NETWORK}
+}
+
+prepare() {
+    #mkdir -p ${MSSQL_DATA_DIR}
+    #mkdir -p ${MSSQL_SHARED_DIR}
+    podman network create ${CONTAINER_NETWORK} --driver bridge
+    build_image
+}
+
+dbrun() {
+    RUNMODE=$1
+    podman run ${RUNMODE} \
+		--name ${CONTAINER_NAME} \
+        --hostname ${CONTAINER_NAME} \
+		--rm \
+		--network ${CONTAINER_NETWORK} \
+		-e "ACCEPT_EULA=Y" \
+        -e "MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}" \
+		-p ${LOCAL_PORT}:1433 \
+		${CONTAINER_TAG}
+}
+
+dbsh() {
+    podman run -it --rm \
+		--network ${CONTAINER_NETWORK} \
+		${CONTAINER_TAG} /bin/bash
+}
+
+dbclient() {
+    DBUSER=$1
+    DBPASS=$2
+    DBNAME=$3
+
+    podman run -it --rm \
+		--network ${CONTAINER_NETWORK} \
+		${CONTAINER_TAG} /opt/mssql-tools18/bin/sqlcmd -S localhost \
+        -U SA \
+        -P ${MSSQL_SA_PASSWORD} \
+
+}
+
+build_image() {
+    podman build -f ${CONTAINER_FILE} -t ${CONTAINER_TAG} .
+}
+
+case $1 in
+    help)
+        help
+        ;;
+
+    clean)
+        clean
+        ;;
+
+    run)
+        prepare
+        dbrun -it
+        ;;
+
+    runbg)
+        prepare
+        dbrun -d
+        ;;
+
+    stop)
+        podman stop ${CONTAINER_NAME}
+        ;;
+
+    dbclient)
+        dbclient ${APP_DB_USER} ${APP_DB_PASS} ${APP_DB_NAME}
+        ;;
+    
+    dbclient_root)
+        dbclient ${POSTGRES_USER} ${POSTGRES_PASSWORD} postgres
+        ;;
+
+    dbsh)
+        dbsh
+        ;;
+
+    *)
+        echo "Unknown argument"
+        help
+        ;;
+
+esac

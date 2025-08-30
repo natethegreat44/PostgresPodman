@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -eu
+
 DBTYPE=${DBTYPE:-postgresql}
 CONTAINER_TAG=${CONTAINER_TAG:-localhost/postgresql}
 CONTAINER_FILE=Containerfile_${DBTYPE}

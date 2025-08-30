@@ -14,6 +14,8 @@ psql -v ON_ERROR_STOP=1 --username "${POSTGRES_USER}" --dbname "${POSTGRES_DB}" 
   GRANT ALL PRIVILEGES ON DATABASE ${APP_DB_NAME} TO ${APP_DB_USER};
   \c ${APP_DB_NAME};
   GRANT ALL PRIVILEGES ON SCHEMA public TO ${APP_DB_USER};
+  GRANT pg_read_server_files TO ${APP_DB_USER};
+  GRANT pg_read_server_files TO ${APP_DB_USER};
 EOSQL
 
 echo ""
